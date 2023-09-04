@@ -1,14 +1,7 @@
-#!/usr/env/python3
-
 import unittest
-import sys
 
-sys.path.append("..")
-
-from csg2csg.SurfaceCard import SurfaceCard
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard
 from csg2csg.SerpentSurfaceCard import serpent_cone_x
-from math import sqrt
 
 
 class TestSerpentSurface(unittest.TestCase):
@@ -30,7 +23,3 @@ class TestSerpentSurface(unittest.TestCase):
         self.assertEqual(
             serp_string, " ckx 0.000000 0.000000 0.000000 0.500000 -1.000000\n"
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

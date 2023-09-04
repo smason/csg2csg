@@ -1,10 +1,5 @@
-#!/usr/env/python3
-
 import unittest
-import sys
-import logging
 
-sys.path.append("..")
 from csg2csg.MCNPInput import MCNPInput  # , explode_macrobody
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard
 from csg2csg.SurfaceCard import SurfaceCard
@@ -528,7 +523,3 @@ class TestMCNPInputRegressions(unittest.TestCase):
         input.process()
 
         self.assertEqual(len(input.surface_list), 6)
-
-
-if __name__ == "__main__":
-    unittest.main()

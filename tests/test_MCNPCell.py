@@ -1,11 +1,6 @@
-#!/usr/env/python3
-
 import unittest
-import sys
 
-sys.path.append("..")
 from csg2csg.MCNPCellCard import MCNPCellCard, mcnp_line_formatter
-from csg2csg.CellCard import CellCard
 
 
 class TestMCNPCellMethods(unittest.TestCase):
@@ -80,7 +75,3 @@ class TestMCNPCellMethods(unittest.TestCase):
             "1 0 (-1 3 4 5 6 8 9 ( 12 13 15) ( 12 13 15) ( 12 13 15) ( 12 13 15) (\n      12 13 15))",
             mcnp_string,
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

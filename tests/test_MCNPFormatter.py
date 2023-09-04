@@ -1,9 +1,4 @@
-#!/usr/env/python3
-
 import unittest
-import sys
-
-sys.path.append("..")
 
 from csg2csg.MCNPFormatter import get_fortran_formatted_number
 
@@ -41,7 +36,3 @@ class TestFortranReadMethods(unittest.TestCase):
         string = "-6.1000"
         number = get_fortran_formatted_number(string)
         self.assertEqual(number, -6.1000)
-
-
-if __name__ == "__main__":
-    unittest.main()

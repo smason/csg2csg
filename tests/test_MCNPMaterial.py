@@ -1,12 +1,6 @@
-#!/usr/env/python3
-
 import unittest
-import sys
-
-sys.path.append("..")
 
 from csg2csg.MCNPMaterialCard import MCNPMaterialCard
-from csg2csg.MCNPInput import MCNPInput
 
 
 class TestMCNPMaterial(unittest.TestCase):
@@ -111,7 +105,3 @@ class TestMCNPMaterial(unittest.TestCase):
 
         self.assertEqual(list(matcard.xsid_dictionary.values())[0], "")
         self.assertEqual(list(matcard.xsid_dictionary.values())[1], "31c")
-
-
-if __name__ == "__main__":
-    unittest.main()

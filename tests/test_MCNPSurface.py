@@ -1,9 +1,5 @@
-#!/usr/env/python3
-
 import unittest
-import sys
 
-sys.path.append("..")
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, surface_has_transform
 from csg2csg.SurfaceCard import SurfaceCard
 
@@ -170,7 +166,3 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         self.assertEqual(box[4],0)
         self.assertEqual(box[5],0)
         """
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,9 +1,4 @@
-#!/usr/env/python3
-
 import unittest
-import sys
-
-sys.path.append("..")
 
 from csg2csg.OpenMCMaterial import zaid_to_name
 
@@ -21,7 +16,3 @@ class TestOpenMCMaterial(unittest.TestCase):
         self.assertEqual(zaid_to_name(name), "Ba133")
         name = "118294"
         self.assertEqual(zaid_to_name(name), "Og294")
-
-
-if __name__ == "__main__":
-    unittest.main()

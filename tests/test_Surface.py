@@ -1,10 +1,6 @@
-#!/usr/env/python3
-
 import unittest
-import sys
 
-sys.path.append("..")
-from SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard
 
 
 class SurfaceMethods(unittest.TestCase):
@@ -105,7 +101,3 @@ class SurfaceMethods(unittest.TestCase):
 
         self.assertEqual(surface1.diff(surface2, False), (False, False))
         self.assertEqual(surface1.diff(surface2), (True, True))
-
-
-if __name__ == "__main__":
-    unittest.main()

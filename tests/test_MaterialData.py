@@ -1,9 +1,4 @@
-#!/usr/env/python3
-
 import unittest
-import sys
-
-sys.path.append("..")
 
 from csg2csg.MaterialData import MaterialData
 
@@ -61,7 +56,3 @@ class TestMaterialDataMethods(unittest.TestCase):
         self.assertEqual(aa, 0)
         aa = mat_data.get_aa(92235)
         self.assertEqual(aa, 235)
-
-
-if __name__ == "__main__":
-    unittest.main()

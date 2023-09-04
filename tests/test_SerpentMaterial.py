@@ -1,9 +1,4 @@
-#!/usr/env/python3
-
 import unittest
-import sys
-
-sys.path.append("..")
 
 from csg2csg.SerpentMaterialCard import SerpentMaterialCard
 from csg2csg.SerpentInput import SerpentInput
@@ -42,7 +37,3 @@ class TestSerpentMaterial(unittest.TestCase):
         serpent = SerpentInput()
         serpent.file_lines = string
         serpent.process()
-
-
-if __name__ == "__main__":
-    unittest.main()

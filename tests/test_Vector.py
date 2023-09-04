@@ -1,9 +1,6 @@
 #!/usr/env/python3
 
 import unittest
-import sys
-
-sys.path.append("..")
 
 from csg2csg.Vector import add, cross, subtract
 
@@ -35,7 +32,3 @@ class TestVectorMethods(unittest.TestCase):
         self.assertEqual(c[0], 0.0)
         self.assertEqual(c[1], 0.0)
         self.assertEqual(c[2], 1.0)
-
-
-if __name__ == "__main__":
-    unittest.main()

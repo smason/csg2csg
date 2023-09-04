@@ -1,9 +1,4 @@
-#!/usr/env/python3
-
 import unittest
-import sys
-
-sys.path.append("..")
 
 from csg2csg.ParticleNames import particleToGeneric, ParticleNames
 
@@ -22,7 +17,3 @@ class TestParticleMethods(unittest.TestCase):
         self.assertEqual("Negative Pion", particleToGeneric(ParticleNames["PION_NEG"]))
         self.assertEqual("Helion", particleToGeneric(ParticleNames["HELION"]))
         self.assertEqual("Negative Muon", particleToGeneric(ParticleNames["MUON_NEG"]))
-
-
-if __name__ == "__main__":
-    unittest.main()
