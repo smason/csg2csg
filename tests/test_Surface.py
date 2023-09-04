@@ -56,7 +56,7 @@ class SurfaceMethods(unittest.TestCase):
         self.assertEqual(surface.surface_coefficients[3], -10.0)
 
     # test the surface.generalise() function
-    def test_surface_reverse(self):
+    def test_surface_generalise(self):
         # first surface
         surface1 = SurfaceCard("")
         surface_coefficients = [1.0, 0.0, 0.0, -10.0]
@@ -65,8 +65,8 @@ class SurfaceMethods(unittest.TestCase):
         surface_id = 1
         surface1.set_type(surface_id, transform_id, surface_type, surface_coefficients)
         surface1.generalise()
-        self.assertEqual(surface1.surface_coefficients[6], -1.0)
-        self.assertEqual(surface1.surface_coefficients[9], -10.0)
+        self.assertEqual(surface1.surface_coefficients[6], 1.0)
+        self.assertEqual(surface1.surface_coefficients[9], 10.0)
 
     # test the surface.reverse() function
     def test_surface_reverse(self):
