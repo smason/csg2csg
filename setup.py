@@ -15,6 +15,9 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points=dict(console_scripts=["csg2csg=csg2csg.__main__:main"]),
     install_requires=["numpy"],
+    extras_require={
+        "dev": ["pytest"],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         # "License :: OSI Approved :: License name here",
