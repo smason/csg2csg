@@ -7,7 +7,7 @@ from csg2csg.FLUKAInput import FLUKAInput
 from csg2csg.PhitsInput import PhitsInput
 
 # for debug info
-import logging, sys
+import logging
 import argparse
 import os
 
@@ -22,9 +22,6 @@ def mkdir(directory):
 
 # the main worker
 def main():
-
-    argv = sys.argv[1:]
-
     parser = argparse.ArgumentParser(description="csg conversion tool.")
 
     parser.add_argument(
@@ -60,7 +57,7 @@ def main():
     )
 
     # parse the arguments
-    args = parser.parse_args(argv)
+    args = parser.parse_args()
 
     # if debugging requested
     if args.debug:

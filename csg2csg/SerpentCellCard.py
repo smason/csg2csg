@@ -3,9 +3,8 @@
 from csg2csg.MCNPFormatter import mcnp_line_formatter
 
 from csg2csg.CellCard import CellCard
-from enum import Enum
 import re
-import math
+
 
 # turn the generic operation type into a serpent relevant text string
 def serpent_op_from_generic(Operation):

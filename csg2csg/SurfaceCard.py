@@ -1,8 +1,6 @@
 from csg2csg.Card import Card
 from enum import Enum
 
-from copy import deepcopy
-
 
 class SurfaceCard(Card):
     """Class for the storage of the generic SurfaceCard type

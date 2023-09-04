@@ -6,24 +6,17 @@ from csg2csg.ParticleNames import particleToGeneric, ParticleNames
 from csg2csg.MaterialCard import get_material_colour
 from csg2csg.MCNPParticleNames import mcnpToParticle
 from csg2csg.MCNPFormatter import strip_dollar_comments
-from csg2csg.MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
-from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
+from csg2csg.MCNPCellCard import MCNPCellCard, write_mcnp_cell
+from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, write_mcnp_surface
 from csg2csg.MCNPDataCard import MCNPTransformCard
 from csg2csg.MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
 
-from collections import Counter
-
 from numpy import linalg as np
-from numpy import dot
-from numpy import cross
-from numpy import inf as npinf
-from numpy import around as nparound
 
 from copy import deepcopy
 
 import warnings
 import logging
-import sys
 import re
 
 
@@ -1225,7 +1218,7 @@ class MCNPInput(InputDeck):
         # loop over the types
         for type in surf_by_type.keys():
             # loop over the surfaces of the same type
-            for idx, surf in enumerate(surf_by_type[type]):
+            for surf in surf_by_type[type]:
                 # loop over surface of the same type
                 for compare in surf_by_type[type]:
                     # this looks wrong but doesnt do double comparing
