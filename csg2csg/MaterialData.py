@@ -1,6 +1,9 @@
 """Collection of useful material data for exploding
 material compositions - note the atomic masses and
 abundances are extracted automatically from PyNE
+
+Note that IDs use PyNE canonical form, see:
+  http://pyne.io/tutorial/01.html#Canonical-Form
 """
 
 from bisect import bisect_left
