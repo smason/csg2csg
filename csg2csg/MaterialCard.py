@@ -103,23 +103,25 @@ class MaterialCard(Card):
         self.material_colour = 0
 
     def __str__(self):
-        string = "Material: " + self.material_name + "\n"
-        string += "Material num: " + str(self.material_number) + "\n"
-        string += "Density: " + str(self.density) + "\n"
-        string += "Colour: " + str(self.material_colour) + "\n"
-        string += "Composition \n"
-        for item in self.composition_dictionary.keys():
-            string += item + " " + str(self.composition_dictionary[item]) + "\n"
+        string = (
+            f"Material: {self.material_name}\n"
+            f"Material num: {self.material_number}\n"
+            f"Density: {self.density}\n"
+            f"Colour: {self.material_colour}\n"
+            "Composition\n"
+        )
+        for nuc, mass in self.composition_dictionary.items():
+            string += f"{nuc} {mass}\n"
 
         return string
 
     # normalise the material composition such that the sum is 1.0
     def normalise(self):
         # dont divide by -ve number ! mass->atom
-        norm = abs(sum(self.composition_dictionary.values()))
+        total = abs(sum(self.composition_dictionary.values()))
 
         self.composition_dictionary = {
-            nuc: frac / norm
+            nuc: frac / total
             for nuc, frac in self.composition_dictionary.items()
         }
 
@@ -133,12 +135,12 @@ class MaterialCard(Card):
                 # already decomposed
                 updated[nuc] = massfrac
                 continue
-            if massfrac < 0:
+            if massfrac < 0.:
                 mass = MaterialData.atomic_mass(intnuc)
             # loop over the nuclides
             for nuclide in MaterialData.get_nucs(intnuc):
                 value = massfrac * MaterialData.natural_abundance(nuclide)
-                if massfrac < 0:
+                if massfrac < 0.:
                     value *= mass / MaterialData.get_aa(nuclide)
                 updated[str(nuclide)] = value
 
