@@ -3,23 +3,31 @@
 from csg2csg.MaterialCard import MaterialCard
 from csg2csg.MCNPFormatter import get_fortran_formatted_number
 
+
 # write a specific serpent material card
 def write_serpent_material(filestream, material):
+    parts = []
 
-    string = "% " + material.material_name + "\n"
-    string += "mat " + str(material.material_number) + " "
-    string += str(material.density)
+    # human readable comment
+    parts.append(f"% {material.material_name}\n")
 
+    # material header line
+    parts.append(f"mat {material.material_number}")
+    parts.append(f" {material.density}")
     # if its a non tally material set the relevant colour
     if material.material_colour:
-        string += " rgb " + material.material_colour + "\n"
-    else:
-        string += "\n"
+        parts.append(f" rgb {material.material_colour}")
+    parts.append("\n")
 
-    for nuc in material.composition_dictionary:
-        string += "{} {:e} \n".format(nuc, material.composition_dictionary[nuc])
-    filestream.write(string)
-    return
+    # material composition
+    for nucid, frac in material.composition_dictionary.items():
+        xsid = material.xsid_dictionary[nucid]
+        if xsid:
+            parts.append(f"{nucid}.{xsid} {frac:e}\n")
+        else:
+            parts.append(f"{nucid} {frac:e}\n")
+
+    filestream.write("".join(parts))
 
 
 """ Class to handle SerpentMaterialCard tranlation
@@ -54,7 +62,7 @@ class SerpentMaterialCard(MaterialCard):
             nucid = nuclide[0]
             try:
                 xsid = nuclide[1]
-            except:
+            except IndexError:
                 xsid = ""
             frac = get_fortran_formatted_number(tokens[1])
             tokens.pop(0)
