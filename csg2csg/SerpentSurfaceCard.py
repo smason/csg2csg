@@ -1,7 +1,7 @@
 #!/usr/env/python3
 
 from csg2csg.SurfaceCard import SurfaceCard
-from math import sqrt
+
 
 # write the general form of a plane
 def serpent_plane_string(SurfaceCard):
@@ -59,12 +59,8 @@ def serpent_cylinder_z(SurfaceCard):
 
 # write a sphere
 def serpent_sphere(SurfaceCard):
-    string = " sph " + str(SurfaceCard.surface_coefficients[0]) + " "
-    string += str(SurfaceCard.surface_coefficients[1]) + " "
-    string += str(SurfaceCard.surface_coefficients[2]) + " "
-    string += str(SurfaceCard.surface_coefficients[3])
-    string += "\n"
-    return string
+    a, b, c, d = SurfaceCard.surface_coefficients
+    return f" sph {a} {b} {c} {d}\n"
 
 
 # write a general quadratic
@@ -266,65 +262,33 @@ def serpent_cone_z(SurfaceCard):
 
 """
 
+_SURFACE_WRITERS = {
+    SurfaceCard.SurfaceType.PLANE_GENERAL: serpent_plane_string,
+    SurfaceCard.SurfaceType.PLANE_X: serpent_plane_x_string,
+    SurfaceCard.SurfaceType.PLANE_Y: serpent_plane_y_string,
+    SurfaceCard.SurfaceType.PLANE_Z: serpent_plane_z_string,
+    SurfaceCard.SurfaceType.CYLINDER_X: serpent_cylinder_x,
+    SurfaceCard.SurfaceType.CYLINDER_Y: serpent_cylinder_y,
+    SurfaceCard.SurfaceType.CYLINDER_Z: serpent_cylinder_z,
+    SurfaceCard.SurfaceType.SPHERE_GENERAL: serpent_sphere,
+    SurfaceCard.SurfaceType.CONE_X: serpent_cone_x,
+    SurfaceCard.SurfaceType.CONE_Y: serpent_cone_y,
+    SurfaceCard.SurfaceType.CONE_Z: serpent_cone_z,
+    SurfaceCard.SurfaceType.TORUS_X: serpent_torus_x,
+    SurfaceCard.SurfaceType.TORUS_Y: serpent_torus_y,
+    SurfaceCard.SurfaceType.TORUS_Z: serpent_torus_z,
+    SurfaceCard.SurfaceType.GENERAL_QUADRATIC: serpent_gq,
+}
+
+
 # write the surface description to file
 def write_serpent_surface(filestream, SurfaceCard):
-    # NOTE this appears to be a nice way to get a pythonic case statement
-    # is it equally ugly as below?
-    # return {
-    #     SurfaceCard.SurfaceType["PLANE_GENERAL"]: surface_plane_write(Surface,
-    #     SurfaceCard.SurfaceType["CYLINDER_Y"]: "cylinder_y\n"
-    #     }.get(SurfaceCard.surface_type,"surface not supported")
+    st = SurfaceCard.surface_type
+    if st not in _SURFACE_WRITERS:
+        raise ValueError(f"Unsupported surface type {st!r}")
 
-    string = "surf " + str(SurfaceCard.surface_id)
-
-    if SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_GENERAL"]:
-        string += serpent_plane_string(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_X"]:
-        string += serpent_plane_x_string(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_Y"]:
-        string += serpent_plane_y_string(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_Z"]:
-        string += serpent_plane_z_string(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CYLINDER_X"]:
-        string += serpent_cylinder_x(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CYLINDER_Y"]:
-        string += serpent_cylinder_y(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CYLINDER_Z"]:
-        string += serpent_cylinder_z(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["SPHERE_GENERAL"]:
-        string += serpent_sphere(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_X"]:
-        string += serpent_cone_x(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_Y"]:
-        string += serpent_cone_y(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_Z"]:
-        string += serpent_cone_z(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_X"]:
-        string += serpent_torus_x(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_Y"]:
-        string += serpent_torus_y(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_Z"]:
-        string += serpent_torus_z(SurfaceCard)
-        filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
-        string += serpent_gq(SurfaceCard)
-        filestream.write(string)
-    else:
-        filestream.write("surface not supported\n")
-    return
+    tail = _SURFACE_WRITERS[st](SurfaceCard)
+    filestream.write(f"surf {SurfaceCard.surface_id}{tail}")
 
 
 class SerpentSurfaceCard(SurfaceCard):
