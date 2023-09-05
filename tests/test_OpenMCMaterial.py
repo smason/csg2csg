@@ -8,7 +8,6 @@ class TestOpenMCMaterial(unittest.TestCase):
         name = "1001"
         self.assertEqual(zaid_to_name(name), "H1")
         name = "26056"
-        print(name[0:0], name[1:1])
         self.assertEqual(zaid_to_name(name), "Fe56")
         name = "53133"
         self.assertEqual(zaid_to_name(name), "I133")

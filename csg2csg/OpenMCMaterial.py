@@ -1,9 +1,6 @@
-#!/usr/env/python3
-
-from csg2csg.MaterialCard import MaterialCard
 import xml.etree.ElementTree as ET
 
-name_zaid = {
+ZAID_NAMES = {
     1: "H",
     2: "He",
     3: "Li",
@@ -124,53 +121,38 @@ name_zaid = {
     118: "Og",
 }
 
+
 # convert zaid to a name for openmc
 def zaid_to_name(zaid_string):
-    if len(zaid_string) <= 4:
-        zz = int(zaid_string[0])
-        aa = int(zaid_string[2:])
-    elif len(zaid_string) > 5:
-        zz = int(zaid_string[0:3])
-        aa = int(zaid_string[3:])
-    else:
-        zz = int(zaid_string[0:2])
-        aa = int(zaid_string[2:])
-
-    # turn zz into a name
-
-    name = name_zaid[zz]
-    return name + str(aa)
+    zz, aa = divmod(int(zaid_string), 1000)
+    return f"{ZAID_NAMES[zz]}{aa}"
 
 
 # write the atomic fraction entry
-def __write_atomic_fraction(material, nuclide, mass_frac):
-    ET.SubElement(material, "nuclide", name=nuclide, ao=str(abs(mass_frac)))
-    return
+def _write_atomic_fraction(material, nuclide, mass_frac):
+    ET.SubElement(material, "nuclide", name=zaid_to_name(nuclide), ao=str(mass_frac))
 
 
 # write a mass fraction entry
-def __write_mass_fraction(material, nuclide, mass_frac):
-    ET.SubElement(material, "nuclide", name=nuclide, wo=str(abs(mass_frac)))
-    return
+def _write_mass_fraction(material, nuclide, mass_frac):
+    ET.SubElement(material, "nuclide", name=zaid_to_name(nuclide), wo=str(mass_frac))
 
 
 # generate the information required to write the
 # material xml element
 def write_openmc_material(MaterialCard, material_tree):
-    matid = str(MaterialCard.material_number)
-    matname = str(MaterialCard.material_name)
-    density = str(abs(MaterialCard.density))
-    if MaterialCard.density < 0:
+    matid = MaterialCard.material_number
+    matname = MaterialCard.material_name
+    density = MaterialCard.density
+    if density < 0:
         density_units = "g/cc"
     else:
         density_units = "atom/b-cm"
 
-    material = ET.SubElement(material_tree, "material", id=matid, name=matname)
-    ET.SubElement(material, "density", value=density, units=density_units)
-    for nuclide in MaterialCard.composition_dictionary:
-        mass_frac = MaterialCard.composition_dictionary[nuclide]
-        nuclide_name = zaid_to_name(nuclide)
+    material = ET.SubElement(material_tree, "material", id=str(matid), name=str(matname))
+    ET.SubElement(material, "density", value=str(abs(density)), units=density_units)
+    for nuclide, mass_frac in MaterialCard.composition_dictionary.items():
         if mass_frac < 0:
-            __write_mass_fraction(material, nuclide_name, mass_frac)
+            _write_mass_fraction(material, nuclide, -mass_frac)
         else:
-            __write_atomic_fraction(material, nuclide_name, mass_frac)
+            _write_atomic_fraction(material, nuclide, mass_frac)
