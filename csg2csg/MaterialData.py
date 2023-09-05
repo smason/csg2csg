@@ -1,4 +1,7 @@
-#!/usr/env/python3
+"""Collection of useful material data for exploding
+material compositions - note the atomic masses and
+abundances are extracted automatically from PyNE
+"""
 
 ATOMIC_MASSES = {
     10010000: 1.00782503223,
@@ -3646,50 +3649,43 @@ NATURAL_ABUNDANCE = {
     922380000: 99.2742,
 }
 
-class MaterialData:
 
-    """Collection of useful material data for exploding
-    material compositions - note the atomic masses and
-    abundances are extracted automatically from PyNE
-    """
+# get atomic number part of zaid
+def get_zz(nuclide):
+    return nuclide // 1000
 
-    # get atomic number part of zaid
-    def get_zz(self, nuclide):
-        zaid = int(nuclide)
-        zz = int(nuclide / 1000)
-        return zz
 
-    # get nucleon number part of zaid
-    def get_aa(self, nuclide):
-        zaid = int(nuclide)
-        aa = int(nuclide) - 1000 * int(nuclide / 1000)
-        return aa
+# get nucleon number part of zaid
+def get_aa(nuclide):
+    return nuclide % 1000
 
-    # given an element zaid get back a list of
-    # isotopes for that element
-    def get_nucs(self, element):
-        nucid = element * 10000  # get zaid in nucid
 
-        all_nuclides = NATURAL_ABUNDANCE.keys()
+# given an element zaid get back a list of
+# isotopes for that element
+def get_nucs(element):
+    nucid = element * 10000  # get zaid in nucid
 
-        nuclides = []
+    all_nuclides = NATURAL_ABUNDANCE.keys()
 
-        for nuclide in all_nuclides:
-            if nuclide - nucid > 0 and nuclide - nucid < nucid / 100:
-                nuclides.append(int(nuclide / 10000))  # return the zaid
+    nuclides = []
 
-        return nuclides
+    for nuclide in all_nuclides:
+        if nuclide - nucid > 0 and nuclide - nucid < nucid / 100:
+            nuclides.append(int(nuclide / 10000))  # return the zaid
 
-    # calculate the atomic mass of an element
-    def atomic_mass(self, element):
-        mass = 0
-        nucid = element * 10000  # get zaid in nucid
+    return nuclides
 
-        for nuclide in NATURAL_ABUNDANCE.keys():
-            if nuclide - nucid > 0 and nuclide - nucid < nucid / 100:
-                mass += (
-                    NATURAL_ABUNDANCE[nuclide]
-                    / 100
-                    * ATOMIC_MASSES[nuclide]
-                )  # return the zaid
-        return mass
+
+# calculate the atomic mass of an element
+def atomic_mass(element):
+    mass = 0
+    nucid = element * 10000  # get zaid in nucid
+
+    for nuclide in NATURAL_ABUNDANCE.keys():
+        if nuclide - nucid > 0 and nuclide - nucid < nucid / 100:
+            mass += (
+                NATURAL_ABUNDANCE[nuclide]
+                / 100
+                * ATOMIC_MASSES[nuclide]
+            )  # return the zaid
+    return mass

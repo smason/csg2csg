@@ -105,7 +105,6 @@ class MaterialCard(Card):
         self.xsid_dictionary = {}
         self.density = 0
         self.material_colour = 0
-        self.mat_data = MaterialData.MaterialData()
 
     def __str__(self):
         string = "Material: " + self.material_name + "\n"
@@ -144,7 +143,7 @@ class MaterialCard(Card):
         for nuc in self.composition_dictionary:
             if int(nuc) % 1000 == 0:
                 keys_to_remove.append(nuc)
-                nuclides = self.mat_data.get_nucs(int(nuc))
+                nuclides = MaterialData.get_nucs(int(nuc))
                 # loop over the nuclides
                 for nuclide in nuclides:
                     if (
@@ -154,8 +153,8 @@ class MaterialCard(Card):
                             self.composition_dictionary[nuc]
                             * MaterialData.NATURAL_ABUNDANCE[nuclide * 10000]
                             / 100
-                            * self.mat_data.atomic_mass(int(nuc))
-                            / self.mat_data.get_aa(nuclide)
+                            * MaterialData.atomic_mass(int(nuc))
+                            / MaterialData.get_aa(nuclide)
                         )
                     else:  # its atom fraction pure multiplication
                         new_nuclides[str(nuclide)] = (
