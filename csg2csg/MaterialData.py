@@ -3,6 +3,9 @@ material compositions - note the atomic masses and
 abundances are extracted automatically from PyNE
 """
 
+from bisect import bisect_left
+
+
 ATOMIC_MASSES = {
     10010000: 1.00782503223,
     10020000: 2.01410177812,
@@ -3649,6 +3652,17 @@ NATURAL_ABUNDANCE = {
     922380000: 99.2742,
 }
 
+_NATURAL_TABLE = sorted(NATURAL_ABUNDANCE.keys())
+
+
+def _lookup(element):
+    start, stop = element * 10000, (element + 1000) * 10000
+    i0 = bisect_left(_NATURAL_TABLE, start)
+    for i in range(i0, len(_NATURAL_TABLE)):
+        nuclide = _NATURAL_TABLE[i]
+        if nuclide < stop:
+            yield nuclide
+
 
 # get atomic number part of zaid
 def get_zz(nuclide):
@@ -3663,29 +3677,17 @@ def get_aa(nuclide):
 # given an element zaid get back a list of
 # isotopes for that element
 def get_nucs(element):
-    nucid = element * 10000  # get zaid in nucid
-
-    all_nuclides = NATURAL_ABUNDANCE.keys()
-
     nuclides = []
-
-    for nuclide in all_nuclides:
-        if nuclide - nucid > 0 and nuclide - nucid < nucid / 100:
-            nuclides.append(int(nuclide / 10000))  # return the zaid
-
+    for nuclide in _lookup(element):
+        nuclides.append(nuclide // 10000)  # return the zaid
     return nuclides
 
 
 # calculate the atomic mass of an element
 def atomic_mass(element):
-    mass = 0
-    nucid = element * 10000  # get zaid in nucid
-
-    for nuclide in NATURAL_ABUNDANCE.keys():
-        if nuclide - nucid > 0 and nuclide - nucid < nucid / 100:
-            mass += (
-                NATURAL_ABUNDANCE[nuclide]
-                / 100
-                * ATOMIC_MASSES[nuclide]
-            )  # return the zaid
-    return mass
+    sum = 0.
+    for nuclide in _lookup(element):
+        abund = NATURAL_ABUNDANCE[nuclide] / 100.
+        mass = ATOMIC_MASSES[nuclide]
+        sum += abund * mass
+    return sum
