@@ -115,21 +115,13 @@ class MaterialCard(Card):
 
     # normalise the material composition such that the sum is 1.0
     def normalise(self):
-        sum = 0.0
-        # get the sum
-        for nuc in self.composition_dictionary:
-            sum += float(self.composition_dictionary[nuc])
-
         # dont divide by -ve number ! mass->atom
-        sum = abs(sum)
+        norm = abs(sum(self.composition_dictionary.values()))
 
-        for nuc in self.composition_dictionary:
-            self.composition_dictionary[nuc] = (
-                float(self.composition_dictionary[nuc]) / sum
-            )
-
-        # all done
-        return
+        self.composition_dictionary = {
+            nuc: frac / norm
+            for nuc, frac in self.composition_dictionary.items()
+        }
 
     # explode elements loop through the dictionary and any material that has elements
     # and explode it into its nuclidewise definition
