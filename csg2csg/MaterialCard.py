@@ -1,7 +1,7 @@
 #!/usr/env/python3
 
 from csg2csg.Card import Card
-from csg2csg.MaterialData import MaterialData
+from csg2csg import MaterialData
 
 MCNP_COLOURS = [
     "0 208 31",
@@ -105,7 +105,7 @@ class MaterialCard(Card):
         self.xsid_dictionary = {}
         self.density = 0
         self.material_colour = 0
-        self.mat_data = MaterialData()
+        self.mat_data = MaterialData.MaterialData()
 
     def __str__(self):
         string = "Material: " + self.material_name + "\n"
@@ -152,7 +152,7 @@ class MaterialCard(Card):
                     ):  # if its mass fraction then
                         new_nuclides[str(nuclide)] = (
                             self.composition_dictionary[nuc]
-                            * self.mat_data.natural_abund_map[nuclide * 10000]
+                            * MaterialData.NATURAL_ABUNDANCE[nuclide * 10000]
                             / 100
                             * self.mat_data.atomic_mass(int(nuc))
                             / self.mat_data.get_aa(nuclide)
@@ -160,7 +160,7 @@ class MaterialCard(Card):
                     else:  # its atom fraction pure multiplication
                         new_nuclides[str(nuclide)] = (
                             self.composition_dictionary[nuc]
-                            * self.mat_data.natural_abund_map[nuclide * 10000]
+                            * MaterialData.NATURAL_ABUNDANCE[nuclide * 10000]
                             / 100
                         )
 
