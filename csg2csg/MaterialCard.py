@@ -87,16 +87,12 @@ def get_material_colour(idx):
 
 
 class MaterialCard(Card):
-
     """A fully defined material card should have a name, a material number,
     a density, a composition dictionary, and optionally a xsid dictionary.
     MCNP being an exception, most MC codes define the density of a material
     belonging to the material definition as opposed to a given cell. This
     approach is taken here for maximal compability amongst codes.
     """
-
-
-    # constructor
     def __init__(self, material_number=0, card_string=""):
         Card.__init__(self, card_string)
         self.material_number = material_number
@@ -138,35 +134,23 @@ class MaterialCard(Card):
     # explode elements loop through the dictionary and any material that has elements
     # and explode it into its nuclidewise definition
     def explode_elements(self):
-        keys_to_remove = []
-        new_nuclides = {}
-        for nuc in self.composition_dictionary:
-            if int(nuc) % 1000 == 0:
-                keys_to_remove.append(nuc)
-                nuclides = MaterialData.get_nucs(int(nuc))
-                # loop over the nuclides
-                for nuclide in nuclides:
-                    if (
-                        self.composition_dictionary[nuc] < 0
-                    ):  # if its mass fraction then
-                        new_nuclides[str(nuclide)] = (
-                            self.composition_dictionary[nuc]
-                            * MaterialData.NATURAL_ABUNDANCE[nuclide * 10000]
-                            / 100
-                            * MaterialData.atomic_mass(int(nuc))
-                            / MaterialData.get_aa(nuclide)
-                        )
-                    else:  # its atom fraction pure multiplication
-                        new_nuclides[str(nuclide)] = (
-                            self.composition_dictionary[nuc]
-                            * MaterialData.NATURAL_ABUNDANCE[nuclide * 10000]
-                            / 100
-                        )
+        updated = {}
+        for nuc, massfrac in self.composition_dictionary.items():
+            intnuc = int(nuc)
+            if MaterialData.get_aa(intnuc) != 0:
+                # already decomposed
+                updated[nuc] = massfrac
+                continue
+            if massfrac < 0:
+                mass = MaterialData.atomic_mass(intnuc)
+            # loop over the nuclides
+            for nuclide in MaterialData.get_nucs(intnuc):
+                value = massfrac * MaterialData.natural_abundance(nuclide)
+                if massfrac < 0:
+                    value *= mass / MaterialData.get_aa(nuclide)
+                updated[str(nuclide)] = value
 
-        # print(self.composition_dictionary)
-        for key in keys_to_remove:
-            del self.composition_dictionary[key]
-
-        for key in new_nuclides.keys():
-            self.composition_dictionary[key] = new_nuclides[key]
-            self.xsid_dictionary[key] = ""
+        self.composition_dictionary = updated
+        for key in updated:
+            if key not in self.xsid_dictionary:
+                self.xsid_dictionary[key] = ""

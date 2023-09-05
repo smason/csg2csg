@@ -3677,6 +3677,10 @@ def get_aa(nuclide):
     return nuclide % 1000
 
 
+def natural_abundance(element):
+    return NATURAL_ABUNDANCE[element * 10000] / 100.
+
+
 # given an element zaid get back a list of
 # isotopes for that element
 def get_nucs(element):
