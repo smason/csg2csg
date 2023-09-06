@@ -1,17 +1,15 @@
 # /usr/env/python3
 
 from csg2csg.CellCard import CellCard
-from enum import Enum
 
 from csg2csg.MCNPFormatter import mcnp_line_formatter, get_fortran_formatted_number
 
 import re
 import math
 
-import logging
-
 # to support more keywords for cells add them here
 mcnp_cell_keywords = ["imp", "u", "fill", "vol", "tmp"]
+
 
 # if the string is a cell card or not
 def is_cell_card(line):
@@ -188,8 +186,8 @@ class MCNPCellCard(CellCard):
     # generally spaceify the text so that between each item
     # there is only one space i.e (7:8) becomes ( 7 : 8 )
     def __sanitise(self):
-        text = self.cell_text_description
-        return
+        # TODO: text = self.cell_text_description
+        pass
 
     # given a valid keyword and string return the value of the
     # keyword
