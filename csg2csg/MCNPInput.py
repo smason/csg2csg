@@ -1,7 +1,7 @@
 # /usr/env/python3
 
-from csg2csg.Input import InputDeck  # , get_surface_with_id
-from csg2csg.SurfaceCard import SurfaceCard  # , BoundaryCondition
+from csg2csg.Input import InputDeck
+from csg2csg.SurfaceCard import SurfaceCard
 from csg2csg.ParticleNames import particleToGeneric, ParticleNames
 from csg2csg.MaterialCard import get_material_colour
 from csg2csg.MCNPParticleNames import mcnpToParticle
@@ -18,6 +18,30 @@ from copy import deepcopy
 import warnings
 import logging
 import re
+
+
+MCNP_MATERIAL_KEYWORDS = [
+    "mode",
+    "prdmp",
+    "rdum",
+    "idum",
+    "sdef",
+    "si",
+    "sp",
+    "wwe",
+    "fm",
+    "vol",
+    "tr",
+    "fc",
+    "*",
+    "print",
+]
+
+SURFACE_CONE_TYPES = {
+    SurfaceCard.SurfaceType.CONE_X,
+    SurfaceCard.SurfaceType.CONE_Y,
+    SurfaceCard.SurfaceType.CONE_Z,
+}
 
 
 class MCNPInput(InputDeck):
@@ -53,15 +77,13 @@ class MCNPInput(InputDeck):
 
     def __process_importances(self):
         # process the lists
-        for particle in self.importance_list.keys():
+        for particle, importance in self.importance_list.items():
             # early exit
-            if (
-                "i" not in self.importance_list[particle]
-                and "r" not in self.importance_list[particle]
-            ):
+            if "i" not in importance and "r" not in importance:
+                # TODO: should this really be return rather than continue?
                 return
 
-            importance_list = self.importance_list[particle].split()
+            importance_list = importance.split()
             # look through the list for r's or i's
             # in mcnp syntax Xr means repeat the value previous
             # to x r times
@@ -90,33 +112,29 @@ class MCNPInput(InputDeck):
                 # print (self.importance_list)
                 return self.__process_importances()
 
+            line = self.file_lines[idx]
             # check for importance keyword
-            if "imp" in self.file_lines[idx]:
-                particle = self.file_lines[idx].split()[0].split(":")[1]
-
-                # TODO mcnp allows the following forms imp:n imp:n,p etc
-                particle = mcnpToParticle(particle)
-                logging.debug(
-                    "%s",
-                    "found importance statement for particle "
-                    + particleToGeneric(particle)
-                    + " on line"
-                    + str(idx),
-                )
-
-                self.importance_list[particle] = self.file_lines[idx][5:].rstrip()
+            if "imp" not in line:
                 idx += 1
-                # while we find a continue line
-                while self.file_lines[idx][0:5] == "     ":
-                    self.importance_list[particle] += self.file_lines[idx].rstrip()
-                    logging.debug(
-                        "%s", "importance statement has continue line" + str(idx)
-                    )
-                    idx += 1
-                else:
-                    continue
-            else:
-                # otherwise advance the line by one
+                continue
+
+            particle = line.split()[0].split(":")[1]
+
+            # TODO mcnp allows the following forms imp:n imp:n,p etc
+            particle = mcnpToParticle(particle)
+            logging.debug(
+                "found importance statement for particle %s on line %s",
+                particleToGeneric(particle), idx
+            )
+
+            self.importance_list[particle] = line[5:].rstrip()
+            idx += 1
+            # while we find a continue line
+            while self.file_lines[idx][0:5] == "     ":
+                self.importance_list[particle] += self.file_lines[idx].rstrip()
+                logging.debug(
+                    "importance statement has continue line %s", str(idx)
+                )
                 idx += 1
 
         return
@@ -194,23 +212,6 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_material_cards(self, start_line):
-        mcnp_keywords = [
-            "mode",
-            "prdmp",
-            "rdum",
-            "idum",
-            "sdef",
-            "si",
-            "sp",
-            "wwe",
-            "fm",
-            "vol",
-            "tr",
-            "fc",
-            "*",
-            "print",
-        ]
-
         idx = start_line
         while True:
             if idx == len(self.file_lines):
@@ -219,7 +220,7 @@ class MCNPInput(InputDeck):
             # this crazy makes sure that we find an "m" in the line but that we dont
             # find another keyword with an m in it like prdmp
             if re.match(" *m[0-9]/*", self.file_lines[idx]):
-                #            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):
+                #            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in MCNP_MATERIAL_KEYWORDS):
                 logging.debug("%s", "material found on line " + str(idx))
                 self.__get_material_card(idx)
             idx += 1
@@ -233,7 +234,7 @@ class MCNPInput(InputDeck):
             if idx == len(self.file_lines):
                 return
 
-            if re.match("^\*?tr", self.file_lines[idx]):
+            if re.match("^\\*?tr", self.file_lines[idx]):
                 logging.debug("%s", "trn card found on line " + str(idx))
                 card_line = self.file_lines[idx]
                 idx += 1  # only check one more line ahead
@@ -251,7 +252,7 @@ class MCNPInput(InputDeck):
         while True:
             if idx == len(self.file_lines):
                 break
-            if re.match("^\*?tr", self.file_lines[idx]):
+            if re.match("^\\*?tr", self.file_lines[idx]):
                 self.__make_transform_card(self.file_lines[idx])
             idx += 1
         return
@@ -548,64 +549,44 @@ class MCNPInput(InputDeck):
         return new_surf_list, cell_description
 
     def __simplify_cone(self, surf):
-        print(len(surf.surface_coefficients), surf.surface_coefficients)
-        if len(surf.surface_coefficients) != 5:
+        coeff = surf.surface_coefficients
+        print(len(coeff), coeff)
+        if len(coeff) != 5:
             return ["", ""]
 
-        new_surf_list = []
-
-        id = int(surf.surface_id)
         self.last_free_surface_index += 1
+        surf_index = self.last_free_surface_index
 
-        if surf.surface_type == SurfaceCard.SurfaceType["CONE_X"]:
-            new_surf = MCNPSurfaceCard(
-                str(self.last_free_surface_index)
-                + " px "
-                + str(surf.surface_coefficients[0])
-            )
-        if surf.surface_type == SurfaceCard.SurfaceType["CONE_Y"]:
-            new_surf = MCNPSurfaceCard(
-                str(self.last_free_surface_index)
-                + " py "
-                + str(surf.surface_coefficients[1])
-            )
-        if surf.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
-            new_surf = MCNPSurfaceCard(
-                str(self.last_free_surface_index)
-                + " pz "
-                + str(surf.surface_coefficients[2])
-            )
+        if surf.surface_type == SurfaceCard.SurfaceType.CONE_X:
+            name = f"{surf_index} px {coeff[0]}"
+        elif surf.surface_type == SurfaceCard.SurfaceType.CONE_Y:
+            name = f"{surf_index} py {coeff[1]}"
+        elif surf.surface_type == SurfaceCard.SurfaceType.CONE_Z:
+            name = f"{surf_index} pz {coeff[2]}"
+        else:
+            raise ValueError(f"Unknown surface type {surf.surface_type!r}")
 
-        new_surf_list.append(new_surf)
+        new_surf = MCNPSurfaceCard(name)
+        oldid, newid = surf.surface_id, new_surf.surface_id
 
         # make a new ambiguity surface
-        if surf.surface_coefficients[4] == -1:
-            cell_description_inside = "( -" + str(surf.surface_id)
-            cell_description_inside += " -" + str(new_surf_list[0].surface_id)
-            cell_description_inside += " )"
-
-            cell_description_outside = "(  " + str(surf.surface_id)
-            cell_description_outside += " -" + str(new_surf_list[0].surface_id)
-            cell_description_outside += " : " + str(new_surf_list[0].surface_id)
-            cell_description_outside += ")"
-
-        if surf.surface_coefficients[4] == 1:
-            cell_description_inside = "( -" + str(surf.surface_id)
-            cell_description_inside += "  " + str(new_surf_list[0].surface_id)
-            cell_description_inside += " )"
-
-            cell_description_outside = "(  " + str(surf.surface_id)
-            cell_description_outside += "  " + str(new_surf_list[0].surface_id)
-            cell_description_outside += " : -" + str(new_surf_list[0].surface_id)
-            cell_description_outside += ")"
+        # TODO: the spacing in the following seems kind if arbitrary,
+        # am keeping because it's tested for, but does it matter?
+        if coeff[4] == -1:
+            cell_description_inside = f"( -{oldid} -{newid} )"
+            cell_description_outside = f"(  {oldid} -{newid} : {newid})"
+        elif coeff[4] == 1:
+            cell_description_inside = f"( -{oldid} {newid} )"
+            cell_description_outside = f"( {oldid} {newid} : -{newid} )"
+        else:
+            raise ValueError(f"Unknown surface coefficient {coeff[4]=!r}")
 
         # update the cone description
-        print(surf.surface_coefficients)
-        surf.surface_coefficients = surf.surface_coefficients[0:4]
+        print(coeff)
+        surf.surface_coefficients = coeff[0:4]
 
         cell_description = [cell_description_inside, cell_description_outside]
-
-        return cell_description, new_surf_list
+        return cell_description, [new_surf]
 
     # take k-cones and if they use the +1/-1 sheet explode into an inner and
     # outer description
@@ -616,66 +597,46 @@ class MCNPInput(InputDeck):
             # if we are a cone
             print(
                 surf.surface_type,
-                surf.surface_type
-                in [
-                    SurfaceCard.SurfaceType["CONE_X"],
-                    SurfaceCard.SurfaceType["CONE_Y"],
-                    SurfaceCard.SurfaceType["CONE_Z"],
-                ],
+                surf.surface_type in SURFACE_CONE_TYPES
             )
-            if surf.surface_type in [
-                SurfaceCard.SurfaceType["CONE_X"],
-                SurfaceCard.SurfaceType["CONE_Y"],
-                SurfaceCard.SurfaceType["CONE_Z"],
-            ]:
+            if surf.surface_type not in SURFACE_CONE_TYPES:
+                continue
 
-                # if we are a cone with 5 coefficients for a normal cone
-                cell_description, new_surfaces = self.__simplify_cone(surf)
+            # if we are a cone with 5 coefficients for a normal cone
+            cell_description, new_surfaces = self.__simplify_cone(surf)
 
-                # if original surface has transform apply it to new surfaces
-                if surf.surface_transform != 0:
-                    for surface in new_surfaces:
-                        surface.surface_transform = surf.surface_transform
+            # if original surface has transform apply it to new surfaces
+            if surf.surface_transform != 0:
+                for surface in new_surfaces:
+                    surface.surface_transform = surf.surface_transform
 
-                # insert the new surfaces into the surface_list
-                self.surface_list.extend(new_surfaces)
+            # insert the new surfaces into the surface_list
+            self.surface_list.extend(new_surfaces)
 
-                # update the cell definition - loop over all cells
-                for jdx, cell in enumerate(self.cell_list):
-                    while True:
-                        # cell text description is contually updated
-                        cell_text_description = cell.cell_text_description
+            regex = re.compile(f"^-?({surf.surface_id})(\\.+[1-9])?$")
+            outside = f"{surf.surface_id}"
+            inside = f"-{surf.surface_id}"
 
-                        # if we find the surface id of the macrobdy in the text description
-                        sub = str(surf.surface_id)
-                        regex = re.compile(
-                            "^-?(" + str(surf.surface_id) + ")(\.+[1-9])?$"
-                        )
-                        matches = [
-                            m.group(0)
-                            for l in cell_text_description
-                            for m in [regex.search(l)]
-                            if m
-                        ]
+            # update the cell definition - loop over all cells
+            for jdx, cell in enumerate(self.cell_list):
+                # cell text description is contually updated
+                description = cell.cell_text_description
 
-                        if matches:
-                            # loop over each component and find the macrobody
-                            for idx, surface in enumerate(cell.cell_text_description):
-                                # if it matches we have the simmple form
-                                if str(surf.surface_id) == surface:  # outside
-                                    # replace it
-                                    cell.cell_text_description[idx] = cell_description[
-                                        1
-                                    ]
-                                elif "-" + str(surf.surface_id) == surface:  # inside
-                                    cell.cell_text_description[idx] = cell_description[
-                                        0
-                                    ]
-                        else:
-                            break
-                    # update the text description
-                    text_string = " ".join(cell.cell_text_description)
-                    self.cell_list[jdx].update(text_string)
+                # we're done when the macrobdy surface id doesn't appear in the text
+                while any(map(regex.search, description)):
+                    # loop over each component and find the macrobody
+                    for idx, surface in enumerate(description):
+                        # if it matches we have the simmple form
+                        if surface == outside:
+                            description[idx] = cell_description[1]
+                        elif surface == inside:
+                            description[idx] = cell_description[0]
+
+                cell.cell_text_description = description
+
+                # update the text description
+                text_string = " ".join(description)
+                self.cell_list[jdx].update(text_string)
 
         return
 
@@ -687,7 +648,6 @@ class MCNPInput(InputDeck):
         # and the 2nd is the left hand side
         if Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RPP"]:
             # the order is weird here but so is MCNP
-            id = int(Surface.surface_id)
             self.last_free_surface_index += 1
             surf = MCNPSurfaceCard(
                 str(self.last_free_surface_index)
@@ -751,8 +711,6 @@ class MCNPInput(InputDeck):
             cell_description = [cell_description_inside, cell_description_outside]
 
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RCC"]:
-            id = int(Surface.surface_id)
-
             vector = [
                 Surface.surface_coefficients[3],
                 Surface.surface_coefficients[4],
@@ -763,8 +721,6 @@ class MCNPInput(InputDeck):
             )
 
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_BOX"]:
-
-            id = int(Surface.surface_id)
 
             origin = [
                 Surface.surface_coefficients[0],
@@ -886,10 +842,7 @@ class MCNPInput(InputDeck):
                         cell_text_description = cell.cell_text_description
 
                         # if we find the surface id of the macrobdy in the text description
-                        sub = str(surf.surface_id)
-                        regex = re.compile(
-                            "^-?(" + str(surf.surface_id) + ")(\.+[1-9])?$"
-                        )
+                        regex = re.compile(f"^-?({surf.surface_id})(\\.+[1-9])?$")
                         matches = [
                             m.group(0)
                             for l in cell_text_description
@@ -946,7 +899,7 @@ class MCNPInput(InputDeck):
     def __nots_remaining(self, cell):
         for i in cell.cell_interpreted:
             if not isinstance(i, cell.OperationType):
-                if re.findall("#(\d+)", i):
+                if re.findall("#(\\d+)", i):
                     return True
         return False
 
@@ -968,7 +921,7 @@ class MCNPInput(InputDeck):
 
         # now we know the position of the # arguments in the
 
-        cell_id = re.findall("#(\d+)", cell.cell_interpreted[pos])
+        cell_id = re.findall("#(\\d+)", cell.cell_interpreted[pos])
         if not cell_id:
             return
         cell_id = cell_id[0]
