@@ -1,10 +1,10 @@
 #!/usr/env/python3
-import sys
 from csg2csg.Card import Card
 from csg2csg.Vector import cross
 import math
 
 import warnings
+
 
 # Class to handle MCNP datacards
 class MCNPDataCard(Card):
@@ -79,8 +79,7 @@ class MCNPTransformCard(MCNPDataCard):
             pass
         else:
             warnings.warn(
-                "Unknown transform definition, " + str(len(tokens)) + self.text_string,
-                Warning,
+                f"Unknown transform definition, {len(tokens)=} - {self.text_string=!r}"
             )
 
         return
