@@ -1,5 +1,4 @@
 from csg2csg.SurfaceCard import BoundaryCondition, SurfaceCard, SurfaceType
-from csg2csg.Vector import add, subtract, cross
 from csg2csg.MCNPFormatter import mcnp_line_formatter
 
 import numpy as np
@@ -363,52 +362,32 @@ class MCNPSurfaceCard(SurfaceCard):
 
     # classify general planes
     def __classify_general_planes(self, surface):
-        coords = [0.0] * 4
+        coeff = [float(s) for s in surface["coefficients"]]
         if len(surface["coefficients"]) == 9:
+            order = ((0, 1, 2), (1, 2, 0), (2, 0, 1))
 
-            a = [
-                surface["coefficients"][0],
-                surface["coefficients"][1],
-                surface["coefficients"][2],
-            ]
-            b = [
-                surface["coefficients"][3],
-                surface["coefficients"][4],
-                surface["coefficients"][5],
-            ]
-            c = [
-                surface["coefficients"][6],
-                surface["coefficients"][7],
-                surface["coefficients"][8],
-            ]
-
-            s = surface["coefficients"]
-            s = [float(i) for i in s]
-
-            order = [[0, 1, 2], [1, 2, 0], [2, 0, 1]]
-
-            for i in range(3):
-                j = order[i][1]
-                k = order[i][2]
-                coords[i] = (
-                    s[j] * (s[k + 3] - s[k + 6])
-                    + s[j + 3] * (s[k + 6] - s[k])
-                    + s[j + 6] * (s[k] - s[k + 3])
-                )
-                coords[3] += s[i] * (s[j + 3] * s[k + 6] - s[j + 6] * s[k + 3])
+            coords = []
+            radius = 0.
+            for i, j, k in order:
+                j0, j3, j6 = coeff[j], coeff[j + 3], coeff[j + 6]
+                k0, k3, k6 = coeff[k], coeff[k + 3], coeff[k + 6]
+                coords.append(sum(
+                    j0 * (k3 - k6),
+                    j3 * (k6 - k0),
+                    j6 * (k0 - k3),
+                ))
+                radius += coeff[i] * (j3 * k6 - j6 * k3)
+            coords.append(radius)
 
             coeff = 0.0
-            for i in range(3, -1, -1):
+            for i in reversed(range(4)):
                 if coeff == 0.0 and coords[i] != 0.0:
                     coeff = 1.0 / coords[i]
                 coords[i] *= coeff
 
             # determine plane by 3 sets of xyz coords
         elif len(surface["coefficients"]) == 4:
-            coords[0] = float(surface["coefficients"][0])
-            coords[1] = float(surface["coefficients"][1])
-            coords[2] = float(surface["coefficients"][2])
-            coords[3] = float(surface["coefficients"][3])
+            coords = coeff
         else:
             print(surface["coefficients"])
             raise Exception(
@@ -922,8 +901,6 @@ class MCNPSurfaceCard(SurfaceCard):
 
     # classify any inifinite surface
     def __classify_surface_types(self, surface):
-
-        surf_id = surface["id"]
         surf_type = surface["type"]
 
         # classify surface types
@@ -941,7 +918,7 @@ class MCNPSurfaceCard(SurfaceCard):
             elif surf_type == "s":
                 self.__classify_general_sphere(surface)
             else:
-                print("im a sphere that I dont understand")
+                raise ValueError(f"im a sphere that I dont understand {surf_type=!r}")
         elif "c" in surf_type and "/" in surf_type:
             self.__classify_cylinder_parallel(surface)
         elif "c" in surf_type and "/" not in surf_type:
@@ -965,12 +942,10 @@ class MCNPSurfaceCard(SurfaceCard):
         elif "x" or "y" or "z" in surf_type:
             self.__classify_edp(surface)
         else:
-            raise Exception("Could not classify surface type {}".format(surf_type))
+            raise ValueError(f"Could not classify surface type {surf_type=!r}")
 
     # classify any inifinite surface
     def __classify_macrobody_types(self, surface):
-
-        surf_id = surface["id"]
         surf_type = surface["type"]
 
         if "box" in surf_type:
@@ -982,8 +957,7 @@ class MCNPSurfaceCard(SurfaceCard):
         elif "rcc" in surf_type:
             self.__classify_rcc(surface)
         else:
-            print("Could not classify surface")
-            sys.exit(1)
+            raise ValueError(f"Could not classify surface {surf_type=!r}")
 
         # TODO add more logic one for each surface type
         return

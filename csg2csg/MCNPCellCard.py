@@ -194,7 +194,7 @@ class MCNPCellCard(CellCard):
     def __get_keyword_value(self, keyword, string):
         # regex = re.regex=re.compile("("+keyword+") ?= ?[1-9][0-9]*")
         regex = re.regex = re.compile(
-            "(" + keyword + ") ?= ?(?=.)([+-]?([0-9]*)(\.([0-9]+))?)"
+            "(" + keyword + ") ?= ?(?=.)([+-]?([0-9]*)(\\.([0-9]+))?)"
         )
         result = regex.search(string)[0]
         return result.split(" ")[2]  # string[offset:end]
