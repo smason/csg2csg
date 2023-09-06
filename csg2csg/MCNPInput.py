@@ -140,20 +140,6 @@ class MCNPInput(InputDeck):
 
         return
 
-    # get the transform cards
-    def __get_transform_cards(self, start_line):
-
-        line = start_line
-        while True:
-            if line == len(self.file_lines):
-                break
-
-            if "tr" in self.file_lines[line]:
-                self.__make_transform_card(self.file_lines[line])
-
-            line += 1
-        return
-
     # extract a material card from the start line until
     def __get_material_card(self, start_line):
         # we already know that the start line has an M init
