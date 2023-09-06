@@ -2,7 +2,7 @@ import unittest
 
 from csg2csg.MCNPInput import MCNPInput  # , explode_macrobody
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard
-from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard, SurfaceType
 
 
 class TestBlockBreaks(unittest.TestCase):
@@ -106,27 +106,27 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(cells[1], "( 1 : 2 : 3 : 4 : 5 : 6)")
         self.assertEqual(len(new_surfaces), 6)
         self.assertEqual(
-            new_surfaces[0].surface_type, SurfaceCard.SurfaceType["PLANE_X"]
+            new_surfaces[0].surface_type, SurfaceType.PLANE_X
         )
         self.assertEqual(new_surfaces[0].surface_coefficients[3], 1)
         self.assertEqual(
-            new_surfaces[1].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            new_surfaces[1].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(new_surfaces[1].surface_coefficients[0], -1)
         self.assertEqual(
-            new_surfaces[2].surface_type, SurfaceCard.SurfaceType["PLANE_Y"]
+            new_surfaces[2].surface_type, SurfaceType.PLANE_Y
         )
         self.assertEqual(new_surfaces[2].surface_coefficients[3], 1)
         self.assertEqual(
-            new_surfaces[3].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            new_surfaces[3].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(new_surfaces[3].surface_coefficients[1], -1)
         self.assertEqual(
-            new_surfaces[4].surface_type, SurfaceCard.SurfaceType["PLANE_Z"]
+            new_surfaces[4].surface_type, SurfaceType.PLANE_Z
         )
         self.assertEqual(new_surfaces[4].surface_coefficients[3], 1)
         self.assertEqual(
-            new_surfaces[5].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            new_surfaces[5].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(new_surfaces[5].surface_coefficients[2], -1)
 
@@ -180,10 +180,10 @@ class TestMCNPInputMethods(unittest.TestCase):
         # surface card
         surface1 = input.surface_list[0]
         surface2 = input.surface_list[1]
-        self.assertEqual(surface1.surface_type, SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(surface1.surface_type, SurfaceType.PLANE_X)
         self.assertEqual(surface1.surface_coefficients, [1, 0, 0, 1])
         self.assertEqual(
-            surface2.surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            surface2.surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(surface2.surface_coefficients, [-1, 0, 0, 1])
 
@@ -228,25 +228,25 @@ class TestMCNPInputMethods(unittest.TestCase):
             self.assertEqual(input.surface_list[i].surface_id, 7 + i)
 
         # surface 7 should be a sphere
-        # self.assertEqual(input.surface_list[0].surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        # self.assertEqual(input.surface_list[0].surface_type, SurfaceType.SPHERE_GENERAL)
         # 8-9 px 10-11 py 12-13 pz
         self.assertEqual(
-            input.surface_list[1].surface_type, SurfaceCard.SurfaceType["PLANE_X"]
+            input.surface_list[1].surface_type, SurfaceType.PLANE_X
         )
         self.assertEqual(
-            input.surface_list[2].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            input.surface_list[2].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(
-            input.surface_list[3].surface_type, SurfaceCard.SurfaceType["PLANE_Y"]
+            input.surface_list[3].surface_type, SurfaceType.PLANE_Y
         )
         self.assertEqual(
-            input.surface_list[4].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            input.surface_list[4].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(
-            input.surface_list[5].surface_type, SurfaceCard.SurfaceType["PLANE_Z"]
+            input.surface_list[5].surface_type, SurfaceType.PLANE_Z
         )
         self.assertEqual(
-            input.surface_list[6].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            input.surface_list[6].surface_type, SurfaceType.PLANE_GENERAL
         )
 
     def test_flatten_macrobodies_with_multiple_macrobodies(self):
@@ -285,64 +285,64 @@ class TestMCNPInputMethods(unittest.TestCase):
 
         # are surfaces correctly processed
         self.assertEqual(
-            input.surface_list[0].surface_type, SurfaceCard.SurfaceType["PLANE_X"]
+            input.surface_list[0].surface_type, SurfaceType.PLANE_X
         )
         self.assertEqual(
-            input.surface_list[1].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            input.surface_list[1].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(
-            input.surface_list[2].surface_type, SurfaceCard.SurfaceType["PLANE_Y"]
+            input.surface_list[2].surface_type, SurfaceType.PLANE_Y
         )
         self.assertEqual(
-            input.surface_list[3].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            input.surface_list[3].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(
-            input.surface_list[4].surface_type, SurfaceCard.SurfaceType["PLANE_Z"]
+            input.surface_list[4].surface_type, SurfaceType.PLANE_Z
         )
         self.assertEqual(
-            input.surface_list[5].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            input.surface_list[5].surface_type, SurfaceType.PLANE_GENERAL
         )
 
         self.assertEqual(
-            input.surface_list[6].surface_type, SurfaceCard.SurfaceType["PLANE_X"]
+            input.surface_list[6].surface_type, SurfaceType.PLANE_X
         )
         self.assertEqual(
-            input.surface_list[7].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            input.surface_list[7].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(
-            input.surface_list[8].surface_type, SurfaceCard.SurfaceType["PLANE_Y"]
+            input.surface_list[8].surface_type, SurfaceType.PLANE_Y
         )
         self.assertEqual(
-            input.surface_list[9].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"]
+            input.surface_list[9].surface_type, SurfaceType.PLANE_GENERAL
         )
         self.assertEqual(
-            input.surface_list[10].surface_type, SurfaceCard.SurfaceType["PLANE_Z"]
+            input.surface_list[10].surface_type, SurfaceType.PLANE_Z
         )
         self.assertEqual(
             input.surface_list[11].surface_type,
-            SurfaceCard.SurfaceType["PLANE_GENERAL"],
+            SurfaceType.PLANE_GENERAL,
         )
 
         self.assertEqual(
-            input.surface_list[12].surface_type, SurfaceCard.SurfaceType["PLANE_X"]
+            input.surface_list[12].surface_type, SurfaceType.PLANE_X
         )
         self.assertEqual(
             input.surface_list[13].surface_type,
-            SurfaceCard.SurfaceType["PLANE_GENERAL"],
+            SurfaceType.PLANE_GENERAL,
         )
         self.assertEqual(
-            input.surface_list[14].surface_type, SurfaceCard.SurfaceType["PLANE_Y"]
+            input.surface_list[14].surface_type, SurfaceType.PLANE_Y
         )
         self.assertEqual(
             input.surface_list[15].surface_type,
-            SurfaceCard.SurfaceType["PLANE_GENERAL"],
+            SurfaceType.PLANE_GENERAL,
         )
         self.assertEqual(
-            input.surface_list[16].surface_type, SurfaceCard.SurfaceType["PLANE_Z"]
+            input.surface_list[16].surface_type, SurfaceType.PLANE_Z
         )
         self.assertEqual(
             input.surface_list[17].surface_type,
-            SurfaceCard.SurfaceType["PLANE_GENERAL"],
+            SurfaceType.PLANE_GENERAL,
         )
 
         # surface numbering should start at 6
@@ -389,7 +389,7 @@ class TestMCNPInputMethods(unittest.TestCase):
 
         # are surfaces correctly processed
         self.assertEqual(
-            input.surface_list[0].surface_type, SurfaceCard.SurfaceType["CONE_Z"]
+            input.surface_list[0].surface_type, SurfaceType.CONE_Z
         )
 
         # surface numbering should start at 6

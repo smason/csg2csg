@@ -1,6 +1,6 @@
 #!/usr/env/python3
 
-from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard, SurfaceType
 
 
 # write the general form of a plane
@@ -263,21 +263,21 @@ def serpent_cone_z(SurfaceCard):
 """
 
 _SURFACE_WRITERS = {
-    SurfaceCard.SurfaceType.PLANE_GENERAL: serpent_plane_string,
-    SurfaceCard.SurfaceType.PLANE_X: serpent_plane_x_string,
-    SurfaceCard.SurfaceType.PLANE_Y: serpent_plane_y_string,
-    SurfaceCard.SurfaceType.PLANE_Z: serpent_plane_z_string,
-    SurfaceCard.SurfaceType.CYLINDER_X: serpent_cylinder_x,
-    SurfaceCard.SurfaceType.CYLINDER_Y: serpent_cylinder_y,
-    SurfaceCard.SurfaceType.CYLINDER_Z: serpent_cylinder_z,
-    SurfaceCard.SurfaceType.SPHERE_GENERAL: serpent_sphere,
-    SurfaceCard.SurfaceType.CONE_X: serpent_cone_x,
-    SurfaceCard.SurfaceType.CONE_Y: serpent_cone_y,
-    SurfaceCard.SurfaceType.CONE_Z: serpent_cone_z,
-    SurfaceCard.SurfaceType.TORUS_X: serpent_torus_x,
-    SurfaceCard.SurfaceType.TORUS_Y: serpent_torus_y,
-    SurfaceCard.SurfaceType.TORUS_Z: serpent_torus_z,
-    SurfaceCard.SurfaceType.GENERAL_QUADRATIC: serpent_gq,
+    SurfaceType.PLANE_GENERAL: serpent_plane_string,
+    SurfaceType.PLANE_X: serpent_plane_x_string,
+    SurfaceType.PLANE_Y: serpent_plane_y_string,
+    SurfaceType.PLANE_Z: serpent_plane_z_string,
+    SurfaceType.CYLINDER_X: serpent_cylinder_x,
+    SurfaceType.CYLINDER_Y: serpent_cylinder_y,
+    SurfaceType.CYLINDER_Z: serpent_cylinder_z,
+    SurfaceType.SPHERE_GENERAL: serpent_sphere,
+    SurfaceType.CONE_X: serpent_cone_x,
+    SurfaceType.CONE_Y: serpent_cone_y,
+    SurfaceType.CONE_Z: serpent_cone_z,
+    SurfaceType.TORUS_X: serpent_torus_x,
+    SurfaceType.TORUS_Y: serpent_torus_y,
+    SurfaceType.TORUS_Z: serpent_torus_z,
+    SurfaceType.GENERAL_QUADRATIC: serpent_gq,
 }
 
 

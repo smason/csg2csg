@@ -2,6 +2,49 @@ from csg2csg.Card import Card
 from enum import Enum
 
 
+class BoundaryCondition(Enum):
+    TRANSMISSION = 0
+    VACUUM = 1
+    REFLECTING = 2
+    PERIODIC = 3
+    WHITE = 4
+
+
+class SurfaceType(Enum):
+    PLANE_GENERAL = 0
+    PLANE_X = 1
+    PLANE_Y = 2
+    PLANE_Z = 3
+    CYLINDER_X = 4
+    CYLINDER_Y = 5
+    CYLINDER_Z = 6
+    SPHERE_GENERAL = 7
+    CONE_X = 8
+    CONE_Y = 9
+    CONE_Z = 10
+    TORUS_X = 11
+    TORUS_Y = 12
+    TORUS_Z = 13
+    GENERAL_QUADRATIC = 14
+    MACRO_RPP = 15
+    MACRO_BOX = 16
+    MACRO_RCC = 17
+
+
+SURFACE_CONE_TYPES = {
+    SurfaceType.CONE_X,
+    SurfaceType.CONE_Y,
+    SurfaceType.CONE_Z,
+}
+
+
+SURFACE_TORUS_TYPES = {
+    SurfaceType.TORUS_X,
+    SurfaceType.TORUS_Y,
+    SurfaceType.TORUS_Z,
+}
+
+
 class SurfaceCard(Card):
     """Class for the storage of the generic SurfaceCard type
     Methods for the generation of flat geometry surface card data
@@ -10,40 +53,13 @@ class SurfaceCard(Card):
     CodeSurfaceCard.py file
     """
 
-    class BoundaryCondition(Enum):
-        TRANSMISSION = 0
-        VACUUM = 1
-        REFLECTING = 2
-        PERIODIC = 3
-        WHITE = 4
-
-    class SurfaceType(Enum):
-        PLANE_GENERAL = 0
-        PLANE_X = 1
-        PLANE_Y = 2
-        PLANE_Z = 3
-        CYLINDER_X = 4
-        CYLINDER_Y = 5
-        CYLINDER_Z = 6
-        SPHERE_GENERAL = 7
-        CONE_X = 8
-        CONE_Y = 9
-        CONE_Z = 10
-        TORUS_X = 11
-        TORUS_Y = 12
-        TORUS_Z = 13
-        GENERAL_QUADRATIC = 14
-        MACRO_RPP = 15
-        MACRO_BOX = 16
-        MACRO_RCC = 17
-
     # constructor for building a surface card
     def __init__(self, card_string):
         self.surface_type = 0
         self.surface_id = 0
         self.surface_transform = 0
         self.surface_coefficients = []
-        self.boundary_condition = self.BoundaryCondition["TRANSMISSION"]
+        self.boundary_condition = BoundaryCondition["TRANSMISSION"]
         self.comment = ""
         self.b_box = [0, 0, 0, 0, 0, 0]  # b
         Card.__init__(self, card_string)
@@ -119,11 +135,11 @@ class SurfaceCard(Card):
 
     # test if the current surface is a macrobody or not
     def is_macrobody(self):
-        if self.surface_type == self.SurfaceType["MACRO_RPP"]:
+        if self.surface_type == SurfaceType.MACRO_RPP:
             return True
-        if self.surface_type == self.SurfaceType["MACRO_BOX"]:
+        if self.surface_type == SurfaceType.MACRO_BOX:
             return True
-        if self.surface_type == self.SurfaceType["MACRO_RCC"]:
+        if self.surface_type == SurfaceType.MACRO_RCC:
             return True
         return False
 
@@ -132,31 +148,31 @@ class SurfaceCard(Card):
         # bounding box return value
         b_box = [0, 0, 0, 0, 0, 0]
 
-        if self.surface_type == self.SurfaceType["PLANE_X"]:
+        if self.surface_type == SurfaceType.PLANE_X:
             b_box[0] = self.surface_coefficients[3]
             b_box[1] = self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType["PLANE_Y"]:
+        elif self.surface_type == SurfaceType.PLANE_Y:
             b_box[2] = self.surface_coefficients[3]
             b_box[3] = self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType["PLANE_Z"]:
+        elif self.surface_type == SurfaceType.PLANE_Z:
             b_box[4] = self.surface_coefficients[3]
             b_box[5] = self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType["CYLINDER_X"]:
+        elif self.surface_type == SurfaceType.CYLINDER_X:
             b_box[2] = self.surface_coefficients[0] - self.surface_coefficients[2]
             b_box[3] = self.surface_coefficients[0] + self.surface_coefficients[2]
             b_box[4] = self.surface_coefficients[1] - self.surface_coefficients[2]
             b_box[5] = self.surface_coefficients[1] + self.surface_coefficients[2]
-        elif self.surface_type == self.SurfaceType["CYLINDER_Y"]:
+        elif self.surface_type == SurfaceType.CYLINDER_Y:
             b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[2]
             b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[2]
             b_box[4] = self.surface_coefficients[1] - self.surface_coefficients[2]
             b_box[5] = self.surface_coefficients[1] + self.surface_coefficients[2]
-        elif self.surface_type == self.SurfaceType["CYLINDER_Z"]:
+        elif self.surface_type == SurfaceType.CYLINDER_Z:
             b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[2]
             b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[2]
             b_box[2] = self.surface_coefficients[1] - self.surface_coefficients[2]
             b_box[3] = self.surface_coefficients[1] + self.surface_coefficients[2]
-        elif self.surface_type == self.SurfaceType["SPHERE_GENERAL"]:
+        elif self.surface_type == SurfaceType.SPHERE_GENERAL:
             b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[3]
             b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[3]
             b_box[2] = self.surface_coefficients[1] - self.surface_coefficients[3]
@@ -180,22 +196,22 @@ class SurfaceCard(Card):
 
         # note the -ve sign is due to the special way that MCNP defines
         # planes (in difference to say FLUKA)
-        if self.surface_type == self.SurfaceType["PLANE_X"]:
+        if self.surface_type == SurfaceType.PLANE_X:
             g = 1.0
             k = -1.0 * self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType["PLANE_Y"]:
+        elif self.surface_type == SurfaceType.PLANE_Y:
             h = 1.0
             k = -1.0 * self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType["PLANE_Z"]:
+        elif self.surface_type == SurfaceType.PLANE_Z:
             j = 1.0
             k = -1.0 * self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType["PLANE_GENERAL"]:
+        elif self.surface_type == SurfaceType.PLANE_GENERAL:
             g = self.surface_coefficients[0]
             h = self.surface_coefficients[1]
             j = self.surface_coefficients[2]
             k = -1.0 * self.surface_coefficients[3]
         # all spheres are general
-        elif self.surface_type == self.SurfaceType["SPHERE_GENERAL"]:
+        elif self.surface_type == SurfaceType.SPHERE_GENERAL:
             a = 1
             b = 1
             c = 1
@@ -212,7 +228,7 @@ class SurfaceCard(Card):
                 - self.surface_coefficients[3] ** 2
             )
         # todo need to check cylinder equation
-        elif self.surface_type == self.SurfaceType["CYLINDER_X"]:
+        elif self.surface_type == SurfaceType.CYLINDER_X:
             b = 1
             c = 1
             h = -2 * self.surface_coefficients[0]
@@ -222,7 +238,7 @@ class SurfaceCard(Card):
                 + self.surface_coefficients[1] ** 2
                 - self.surface_coefficients[2] ** 2
             )
-        elif self.surface_type == self.SurfaceType["CYLINDER_Y"]:
+        elif self.surface_type == SurfaceType.CYLINDER_Y:
             a = 1
             c = 1
             g = -2 * self.surface_coefficients[0]
@@ -232,7 +248,7 @@ class SurfaceCard(Card):
                 + self.surface_coefficients[1] ** 2
                 - self.surface_coefficients[2] ** 2
             )
-        elif self.surface_type == self.SurfaceType["CYLINDER_Z"]:
+        elif self.surface_type == SurfaceType.CYLINDER_Z:
             a = 1
             b = 1
             g = -2 * self.surface_coefficients[0]
@@ -243,7 +259,7 @@ class SurfaceCard(Card):
                 - self.surface_coefficients[2] ** 2
             )
         # todo check cone equation
-        elif self.surface_type == self.SurfaceType["CONE_X"]:
+        elif self.surface_type == SurfaceType.CONE_X:
             a = -1 * self.surface_coefficients[3]
             b = 1
             c = 1
@@ -255,7 +271,7 @@ class SurfaceCard(Card):
                 + self.surface_coefficients[1] ** 2
                 + self.surface_coefficients[2] ** 2
             )
-        elif self.surface_type == self.SurfaceType["CONE_Y"]:
+        elif self.surface_type == SurfaceType.CONE_Y:
             a = 1
             b = -1 * self.surface_coefficients[3]
             c = 1
@@ -267,7 +283,7 @@ class SurfaceCard(Card):
                 - self.surface_coefficients[3] * self.surface_coefficients[1] ** 2
                 + self.surface_coefficients[2] ** 2
             )
-        elif self.surface_type == self.SurfaceType["CONE_Z"]:
+        elif self.surface_type == SurfaceType.CONE_Z:
             a = 1
             b = 1
             c = -1 * self.surface_coefficients[3]
@@ -279,7 +295,7 @@ class SurfaceCard(Card):
                 + self.surface_coefficients[1] ** 2
                 - self.surface_coefficients[2] ** 2 * self.surface_coefficients[3]
             )
-        elif self.surface_type == self.SurfaceType["GENERAL_QUADRATIC"]:
+        elif self.surface_type == SurfaceType.GENERAL_QUADRATIC:
             a = self.surface_coefficients[0]
             b = self.surface_coefficients[1]
             c = self.surface_coefficients[2]
@@ -290,11 +306,7 @@ class SurfaceCard(Card):
             h = self.surface_coefficients[7]
             j = self.surface_coefficients[8]
             k = self.surface_coefficients[9]
-        elif self.surface_type in {
-            self.SurfaceType["TORUS_X"],
-            self.SurfaceType["TORUS_Y"],
-            self.SurfaceType["TORUS_Z"],
-        }:
+        elif self.surface_type in SURFACE_TORUS_TYPES:
             return
         else:
             print("could not classify surface", self.surface_id, self.surface_type)
@@ -313,12 +325,12 @@ class SurfaceCard(Card):
         new_surface_coefficients[9] = k
 
         # dont forget to turn the type into a gq
-        self.surface_type = self.SurfaceType["GENERAL_QUADRATIC"]
+        self.surface_type = SurfaceType.GENERAL_QUADRATIC
         self.surface_coefficients = new_surface_coefficients
         return
 
     def simplify(self):
-        if self.surface_type != self.SurfaceType["GENERAL_QUADRATIC"]:
+        if self.surface_type != SurfaceType.GENERAL_QUADRATIC:
             return
         # then its a plane!
         if all(value == 0.0 for value in self.surface_coefficients[0:5]):
@@ -327,13 +339,13 @@ class SurfaceCard(Card):
             self.surface_coefficients[2] = self.surface_coefficients[8]
             self.surface_coefficients[3] = -1.0 * self.surface_coefficients[9]
             self.surface_coefficients = self.surface_coefficients[0:4]
-            self.surface_type = self.SurfaceType["PLANE_GENERAL"]
+            self.surface_type = SurfaceType.PLANE_GENERAL
         elif all(value == 0.0 for value in self.surface_coefficients[0:7]):
             self.surface_coefficients[0] = 0.0
             self.surface_coefficients[1] = 0.0
             self.surface_coefficients[2] = 1.0
             self.surface_coefficients[3] = -1.0 * self.surface_coefficients[9]
             self.surface_coefficients = self.surface_coefficients[0:4]
-            self.surface_type = self.SurfaceType["PLANE_Z"]
+            self.surface_type = SurfaceType.PLANE_Z
         else:
             return

@@ -1,7 +1,7 @@
 # /usr/env/python3
 
 from csg2csg.Input import InputDeck
-from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard, SURFACE_CONE_TYPES, SurfaceType, BoundaryCondition
 from csg2csg.ParticleNames import particleToGeneric, ParticleNames
 from csg2csg.MaterialCard import get_material_colour
 from csg2csg.MCNPParticleNames import mcnpToParticle
@@ -36,13 +36,6 @@ MCNP_MATERIAL_KEYWORDS = [
     "*",
     "print",
 ]
-
-SURFACE_CONE_TYPES = {
-    SurfaceCard.SurfaceType.CONE_X,
-    SurfaceCard.SurfaceType.CONE_Y,
-    SurfaceCard.SurfaceType.CONE_Z,
-}
-
 
 class MCNPInput(InputDeck):
     """MCNPInputDeck class - does the actuall processing"""
@@ -557,11 +550,11 @@ class MCNPInput(InputDeck):
         self.last_free_surface_index += 1
         surf_index = self.last_free_surface_index
 
-        if surf.surface_type == SurfaceCard.SurfaceType.CONE_X:
+        if surf.surface_type == SurfaceType.CONE_X:
             name = f"{surf_index} px {coeff[0]}"
-        elif surf.surface_type == SurfaceCard.SurfaceType.CONE_Y:
+        elif surf.surface_type == SurfaceType.CONE_Y:
             name = f"{surf_index} py {coeff[1]}"
-        elif surf.surface_type == SurfaceCard.SurfaceType.CONE_Z:
+        elif surf.surface_type == SurfaceType.CONE_Z:
             name = f"{surf_index} pz {coeff[2]}"
         else:
             raise ValueError(f"Unknown surface type {surf.surface_type!r}")
@@ -646,7 +639,7 @@ class MCNPInput(InputDeck):
         # NOTE MCNP Macrobodies have +ve sense outside of it, and -ve sense inside
         # of it. Therefore, on a RPP the first index is the right hand side of the cube
         # and the 2nd is the left hand side
-        if Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RPP"]:
+        if Surface.surface_type == SurfaceType["MACRO_RPP"]:
             # the order is weird here but so is MCNP
             self.last_free_surface_index += 1
             surf = MCNPSurfaceCard(
@@ -710,7 +703,7 @@ class MCNPInput(InputDeck):
 
             cell_description = [cell_description_inside, cell_description_outside]
 
-        elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RCC"]:
+        elif Surface.surface_type == SurfaceType["MACRO_RCC"]:
             vector = [
                 Surface.surface_coefficients[3],
                 Surface.surface_coefficients[4],
@@ -720,7 +713,7 @@ class MCNPInput(InputDeck):
                 Surface, vector
             )
 
-        elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_BOX"]:
+        elif Surface.surface_type == SurfaceType["MACRO_BOX"]:
 
             origin = [
                 Surface.surface_coefficients[0],
@@ -991,18 +984,14 @@ class MCNPInput(InputDeck):
     # update surfaces that need their bounding coordinates updated
     def __update_surfaces(self):
         for surf in self.surface_list:
-            if surf.surface_type in [
-                SurfaceCard.SurfaceType["CONE_X"],
-                SurfaceCard.SurfaceType["CONE_Y"],
-                SurfaceCard.SurfaceType["CONE_Z"],
-            ]:
-                if surf.surface_type == SurfaceCard.SurfaceType["CONE_X"]:
+            if surf.surface_type in SURFACE_CONE_TYPES:
+                if surf.surface_type == SurfaceType.CONE_X:
                     surf.b_box[0] = self.bounding_coordinates[0]
                     surf.b_box[1] = self.bounding_coordinates[1]
-                elif surf.surface_type == SurfaceCard.SurfaceType["CONE_Y"]:
+                elif surf.surface_type == SurfaceType.CONE_Y:
                     surf.b_box[2] = self.bounding_coordinates[2]
                     surf.b_box[3] = self.bounding_coordinates[3]
-                elif surf.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
+                elif surf.surface_type == SurfaceType.CONE_Z:
                     surf.b_box[4] = self.bounding_coordinates[4]
                     surf.b_box[5] = self.bounding_coordinates[5]
                 else:
@@ -1090,7 +1079,7 @@ class MCNPInput(InputDeck):
                 for surf in cell.cell_surface_list:
                     self.get_surface_with_id(
                         surf
-                    ).boundary_condition = SurfaceCard.BoundaryCondition["VACUUM"]
+                    ).boundary_condition = BoundaryCondition.VACUUM
         return
 
     # extract all the surface cards from the input deck
