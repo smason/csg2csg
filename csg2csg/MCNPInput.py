@@ -1,7 +1,7 @@
 # /usr/env/python3
 
 from csg2csg.Input import InputDeck
-from csg2csg.SurfaceCard import SurfaceCard, SURFACE_CONE_TYPES, SurfaceType, BoundaryCondition
+from csg2csg.SurfaceCard import SURFACE_CONE_TYPES, SurfaceType, BoundaryCondition
 from csg2csg.ParticleNames import particleToGeneric, ParticleNames
 from csg2csg.MaterialCard import get_material_colour
 from csg2csg.MCNPParticleNames import mcnpToParticle

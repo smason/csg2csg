@@ -1,9 +1,9 @@
 # /usr/env/python3
 
 from csg2csg.Input import InputDeck
-from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, write_mcnp_surface
-from csg2csg.MCNPCellCard import MCNPCellCard, write_mcnp_cell
-from csg2csg.MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
+from csg2csg.MCNPSurfaceCard import write_mcnp_surface
+from csg2csg.MCNPCellCard import write_mcnp_cell
+from csg2csg.MCNPMaterialCard import write_mcnp_material
 
 
 class PhitsInput(InputDeck):
@@ -45,11 +45,8 @@ class PhitsInput(InputDeck):
         filestream.write("   reg       imp   \n")
         for cell in self.cell_list:
             filestream.write(
-                "    "
-                + str(cell.cell_id)
-                + "        "
-                + str(cell.cell_importance)
-                + "\n"
+                f"    {cell.cell_id}"
+                f"        {cell.cell_importance}\n"
             )
         return
 

@@ -2,8 +2,6 @@
 
 from csg2csg.Input import InputDeck
 
-import logging
-import sys
 import xml.etree.ElementTree as ET
 
 from csg2csg.OpenMCSurface import write_openmc_surface
